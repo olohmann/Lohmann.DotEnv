@@ -1,8 +1,7 @@
 using System;
+using System.Linq;
+using System.Reflection;
 using System.Collections.Generic;
-using System.IO;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace Lohmann.DotEnv
 {
@@ -21,6 +20,24 @@ namespace Lohmann.DotEnv
             _environmentVariableProvider = environmentVariableProvider;
         }
 
+        /// <summary>
+        /// Returns the default instance of the EnvValidator class.
+        /// </summary>
+        /// <returns>The default instance.</returns>
+        public static EnvValidator Default
+        {
+            get
+            {
+                return _default.Value;
+            }
+        }
+
+        /// <summary>
+        /// Validates the setting of the provided variables.
+        /// A variable is considered defined it its value is != empty, whitespace or null.
+        /// </summary>
+        /// <param name="requiredVariables"></param>
+        /// <returns>The validation results.</returns>
         public EnvValidatorResult Validate(IEnumerable<string> requiredVariables) 
         {
             var results = new List<string>();
@@ -37,11 +54,26 @@ namespace Lohmann.DotEnv
             return new EnvValidatorResult(results);
         }
 
+        /// <summary>
+        /// Validates the setting of environment variables by scanning the provided model type get'able properties.
+        /// A variable is considered defined it its value is != empty, whitespace or null.
+        /// </summary>
+        /// <param name="modelType"></param>
+        /// <returns>The validation results.</returns>
         public EnvValidatorResult Validate(Type modelType)
         {
-            return Validate(new string[] {});
+            var readablePropertyNames = modelType.GetRuntimeProperties()
+                .Where(p => p.CanRead && p.PropertyType == typeof(string))
+                .Select(p => p.Name);
+
+            return Validate(readablePropertyNames);
         } 
 
+        /// <summary>
+        /// Validates the setting of environment variables by scanning the provided model type get'able properties.
+        /// A variable is considered defined it its value is != empty, whitespace or null.
+        /// </summary>
+        /// <returns>The validation results.</returns>
         public EnvValidatorResult Validate<TModel>() 
         {
             var type = typeof(TModel);
