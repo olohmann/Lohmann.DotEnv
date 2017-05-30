@@ -2,6 +2,19 @@
   <PropertyGroup>
     <TargetFramework>netstandard1.3</TargetFramework>
   </PropertyGroup>
+  
+  <PropertyGroup>
+    <VersionPrefix>1.0.0</VersionPrefix>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Authors>Oliver Lohmann</Authors>
+    <NeutralLanguage>en-US</NeutralLanguage>
+    <AssemblyTitle>Lohmann.DotEnv</AssemblyTitle>
+    <Description>Loads environment variables from a .env file into your .NET application's process environment variables.</Description>
+    <Copyright>2017 Oliver Lohmann</Copyright>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="System.ValueTuple" Version="4.3.1" />
   </ItemGroup>
