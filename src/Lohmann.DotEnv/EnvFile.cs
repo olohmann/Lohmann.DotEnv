@@ -121,7 +121,7 @@ namespace Lohmann.DotEnv
         {
             if (string.IsNullOrWhiteSpace(line))
             {
-                throw new ArgumentNullException(nameof(line));
+                return null;
             }
 
             var match = KeyValueRegex.Match(line);
