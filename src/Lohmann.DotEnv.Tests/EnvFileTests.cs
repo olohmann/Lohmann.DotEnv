@@ -15,17 +15,24 @@ namespace Lohmann.DotEnv.Tests
             public Dictionary<string, string> EnvironmentDictionary { get; }
                 = new Dictionary<string, string>();
 
-            string IEnvironmentVariableProvider.Get(string variable)
+            public string Get(string variable)
             {
                 return EnvironmentDictionary.ContainsKey(variable) ? EnvironmentDictionary[variable] : string.Empty;
             }
 
-            void IEnvironmentVariableProvider.Set(string variable, string value)
+            public void Set(string variable, string value, bool overrideExistingValue = false)
             {
-                EnvironmentDictionary.Add(variable, value);
+                if (!EnvironmentDictionary.ContainsKey(variable))
+                {
+                    EnvironmentDictionary.Add(variable, value);
+                }
+                else if (overrideExistingValue)
+                {
+                    EnvironmentDictionary[variable] = value;
+                }
             }
         }
-    
+
         private Stream CreateStreamFromLines(string[] lines)
         {
             var str = String.Join(Environment.NewLine, lines);
@@ -110,6 +117,45 @@ namespace Lohmann.DotEnv.Tests
         }
 
         [Fact]
+        public async Task LoadDefaultDotEnvFile_ExistingEnvValuesAreNotChanged()
+        {
+            var lines = new string[]
+            {
+                "FOO=BUZZ"
+            };
+
+            using (var stream = CreateStreamFromLines(lines))
+            {
+                var mockEnvironmentProvider = new MockEnvironmentProvider();
+                mockEnvironmentProvider.Set("FOO", "BAR");
+                var envFile = new EnvFile(mockEnvironmentProvider);
+                await envFile.LoadAsync(stream);
+                Assert.Equal(1, mockEnvironmentProvider.EnvironmentDictionary.Count);
+                Assert.Equal("BAR", mockEnvironmentProvider.EnvironmentDictionary["FOO"]);
+            }
+        }
+
+        [Fact]
+        public async Task LoadDefaultDotEnvFile_LastConfigValueWins()
+        {
+            var lines = new string[]
+            {
+                "FOO=BUZZ",
+                "FOO=BAR"
+            };
+
+            using (var stream = CreateStreamFromLines(lines))
+            {
+                var mockEnvironmentProvider = new MockEnvironmentProvider();
+                mockEnvironmentProvider.Set("FOO", "BAR");
+                var envFile = new EnvFile(mockEnvironmentProvider);
+                await envFile.LoadAsync(stream);
+                Assert.Equal(1, mockEnvironmentProvider.EnvironmentDictionary.Count);
+                Assert.Equal("BAR", mockEnvironmentProvider.EnvironmentDictionary["FOO"]);
+            }
+        }
+
+        [Fact]
         public async Task LoadDefaultDotEnvFile_EnvironmentVariablesSet()
         {
             var mockEnvironmentProvider = new MockEnvironmentProvider();
@@ -125,7 +171,7 @@ namespace Lohmann.DotEnv.Tests
             var mockEnvironmentProvider = new MockEnvironmentProvider();
             var envFile = new EnvFile(mockEnvironmentProvider);
             await envFile.LoadAsync("./.env-not-default");
-            
+
             Assert.Equal(1, mockEnvironmentProvider.EnvironmentDictionary.Count);
             Assert.Equal("BUZZ", mockEnvironmentProvider.EnvironmentDictionary["FIZZ"]);
         }

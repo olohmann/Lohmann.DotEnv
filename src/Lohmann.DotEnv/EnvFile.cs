@@ -104,7 +104,14 @@ namespace Lohmann.DotEnv
                         var lineResult = ParseLine(line);
                         if (lineResult.HasValue)
                         {
-                            result.Add(lineResult.Value.key, lineResult.Value.value);
+                            if (result.ContainsKey(lineResult.Value.key)) 
+                            {
+                                result[lineResult.Value.key] = lineResult.Value.value;
+                            }
+                            else 
+                            {
+                                result.Add(lineResult.Value.key, lineResult.Value.value);
+                            }
                         }
                     }
                 } while (line != null);

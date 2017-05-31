@@ -9,9 +9,18 @@ namespace Lohmann.DotEnv
             return System.Environment.GetEnvironmentVariable(variable);
         }
 
-        public void Set(string variable, string value)
+        public void Set(string variable, string value, bool overrideExistingValue = false)
         {
-            System.Environment.SetEnvironmentVariable(variable, value);
+            var existingValue = System.Environment.GetEnvironmentVariable(variable);
+
+            if (existingValue == null) 
+            {
+                System.Environment.SetEnvironmentVariable(variable, value);
+            } 
+            else if (overrideExistingValue)
+            {
+                System.Environment.SetEnvironmentVariable(variable, value);
+            }
         }
     }
 }
