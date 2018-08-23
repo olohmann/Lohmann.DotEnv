@@ -16,13 +16,13 @@ dotnet add package Lohmann.DotEnv
 
 ### Default
 Create a .env file located right beside your executable:
-```
+```bash
 HOST=api.contoso.com
 TOKEN=b3LvpJ7ORbp4qu7P5socUg==
 ```
 
 Setup your (console) app to use the .env file:
-```
+```csharp
     class Program
     {
         static void Main(string[] args)
