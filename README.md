@@ -43,7 +43,7 @@ Setup your (console) app to use the .env file:
             await Lohmann.DotEnv.EnvFile.Default.LoadAsync();
 
             // You can use the built-in validator to check if all required env variables are set:
-            var validationResult = Lohmann.DotEnv.EnvValidator.Validate(new [] { "HOST", "TOKEN" });
+            var validationResult = Lohmann.DotEnv.EnvValidator.Default.Validate(new [] { "HOST", "TOKEN" });
             if (validationResult.HasValidationErrors) 
             {
                 // ... report errors
